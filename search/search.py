@@ -87,7 +87,7 @@ def depthFirstSearch(problem):
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    genericSearch(problem, util.Stack())
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
@@ -111,6 +111,27 @@ def aStarSearch(problem, heuristic=nullHeuristic):
     "*** YOUR CODE HERE ***"
     util.raiseNotDefined()
 
+def genericSearch(problem, fringe):
+    fringe.push([(problem.getStartState(), 'Start', 1)])
+    while not fringe.isEmpty():
+        current = fringe.pop()
+        if problem.isGoalState(current[-1][0]):
+            actions = []
+            for state in current[1:]:
+                actions.append(state[1])
+            return actions
+        else:
+            successors = problem.getSuccessors(current[-1][0])
+            for successor in successors:
+                notInPath = True
+                for state in current:
+                    if state[0] == successor[0]:
+                        notInPath = False
+                if notInPath:
+                    next = current
+                    next.append(successor)
+                    fringe.push(next)
+    return None
 
 # Abbreviations
 bfs = breadthFirstSearch
