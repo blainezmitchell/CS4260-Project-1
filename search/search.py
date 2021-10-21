@@ -92,10 +92,12 @@ def depthFirstSearch(problem):
     return genericSearch(problem,fringe);
     
 def breadthFirstSearch(problem):
-    """Search the shallowest nodes in the search tree first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
-
+    """Search the shallowest nodes in the search tree first.
+    "*** YOUR CODE HERE ***" """
+    from util import Queue
+    fringe = Queue();
+    return genericSearch(problem,fringe);
+    
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
@@ -115,6 +117,7 @@ def aStarSearch(problem, heuristic=nullHeuristic):
 
 def genericSearch(problem, fringe):
     fringe.push([(problem.getStartState(), 'Start', 1)])
+    visited = [problem.getStartState()]
     while not fringe.isEmpty():
         current = fringe.pop()
         currentState = current[-1]
@@ -134,6 +137,15 @@ def genericSearch(problem, fringe):
                     next = current[:]
                     next.append(successor)
                     fringe.push(next)
+                
+                """
+                if successor[0] not in visited:
+                    visited.append(successor[0])
+                    next = current[:]
+                    next.append(successor)
+                    fringe.push(next)
+                """
+                    
     return None
 
 # Abbreviations
