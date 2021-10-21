@@ -157,7 +157,7 @@ def searchWithCost(problem, fringe, heuristic = nullHeuristic):
         current = fringe.pop()
         currentState = current[-1]
         currentCost = currentState[1]
-        if problem.isGoalState(currentState[0]):
+        if problem.isGoalState(currentState[0][0]):
             actions = []
             for state in current[1:]:
                 actions.append(state[0][1])
