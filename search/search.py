@@ -88,18 +88,20 @@ def depthFirstSearch(problem):
     """
     "*** YOUR CODE HERE ***"
     from util import Stack
-    fringe = Stack();
-    return genericSearch(problem,fringe);
+    fringe = Stack()
+    return genericSearch(problem, fringe)
     
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    from util import Queue
+    fringe = Queue()
+    return genericSearch(problem, fringe)
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    return aStarSearch(problem, nullHeuristic)
 
 def nullHeuristic(state, problem=None):
     """
@@ -111,7 +113,9 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    from util import PriorityQueue
+    fringe = PriorityQueue()
+    return searchWithCost(problem, fringe, heuristic)
 
 def genericSearch(problem, fringe):
     fringe.push([(problem.getStartState(), 'Start', 1)])
@@ -134,6 +138,32 @@ def genericSearch(problem, fringe):
                     next = current[:]
                     next.append(successor)
                     fringe.push(next)
+    return None
+
+def searchWithCost(problem, fringe, heuristic = nullHeuristic):
+    fringe.push([((problem.getStartState(), 'Start', 1), 0)], 0)
+    successorMap = {}
+    while not fringe.isEmpty():
+        current = fringe.pop()
+        currentState = current[-1]
+        currentCost = currentState[1]
+        if problem.isGoalState(currentState[0]):
+            actions = []
+            for state in current[1:]:
+                actions.append(state[0][1])
+            return actions
+        else:
+            if currentState[0][0] in successorMap.keys():
+                successors = successorMap[currentState[0][0]]
+            else:
+                successors = problem.getSuccessors(currentState[0][0])
+                successorMap[currentState[0][0]] = successors
+            for successor in successors:
+                if not successor[0] in successorMap.keys():
+                    nextCost = currentCost + successor[2]
+                    next = current[:]
+                    next.append([successor, nextCost])
+                    fringe.push(next, nextCost + heuristic(successor[0], problem))
     return None
 
 # Abbreviations
