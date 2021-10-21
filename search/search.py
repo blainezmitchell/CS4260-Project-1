@@ -119,6 +119,7 @@ def aStarSearch(problem, heuristic=nullHeuristic):
 
 def genericSearch(problem, fringe):
     fringe.push([(problem.getStartState(), 'Start', 1)])
+    visited = [problem.getStartState()]
     while not fringe.isEmpty():
         current = fringe.pop()
         currentState = current[-1]
@@ -138,6 +139,15 @@ def genericSearch(problem, fringe):
                     next = current[:]
                     next.append(successor)
                     fringe.push(next)
+                
+                """
+                if successor[0] not in visited:
+                    visited.append(successor[0])
+                    next = current[:]
+                    next.append(successor)
+                    fringe.push(next)
+                """
+                    
     return None
 
 def searchWithCost(problem, fringe, heuristic = nullHeuristic):
