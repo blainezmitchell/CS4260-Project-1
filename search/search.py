@@ -90,14 +90,16 @@ def depthFirstSearch(problem):
     from util import Stack
     fringe = Stack()
     return genericSearch(problem, fringe)
+
     
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
     from util import Queue
     fringe = Queue()
-    return genericSearch(problem, fringe)
 
+    return genericSearch(problem,fringe)
+    
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
