@@ -34,6 +34,7 @@ description for details.
 Good luck and happy searching!
 """
 
+from typing import FrozenSet, NamedTuple
 from game import Directions
 from game import Agent
 from game import Actions
@@ -266,6 +267,11 @@ def euclideanHeuristic(position, problem, info={}):
 # This portion is incomplete.  Time to write code!  #
 #####################################################
 
+class CornersProblemState:
+    def __init__(self, position, corners):
+        self.position = position
+        self.corners = corners
+
 class CornersProblem(search.SearchProblem):
     """
     This search problem finds paths through all four corners of a layout.
@@ -295,16 +301,16 @@ class CornersProblem(search.SearchProblem):
         space)
         """
         "*** YOUR CODE HERE ***"
-        return (self.startingPosition, ())
+        return CornersProblemState(self.startingPosition, self.corners)
 
-    def isGoalState(self, state):
+    def isGoalState(self, state: CornersProblemState):
         """
         Returns whether this search state is a goal state of the problem.
         """
         "*** YOUR CODE HERE ***"
-        return len(state[1]) == 4
+        return len(state.corners) == 0
 
-    def getSuccessors(self, state):
+    def getSuccessors(self, state: CornersProblemState):
         """
         Returns successor states, the actions they require, and a cost of 1.
 
@@ -325,16 +331,16 @@ class CornersProblem(search.SearchProblem):
             #   hitsWall = self.walls[nextx][nexty]
 
             "*** YOUR CODE HERE ***"
-            x,y = state[0]
+            x,y = state.position
             dx, dy = Actions.directionToVector(action)
             nextx, nexty = int(x + dx), int(y + dy)
             hitsWall = self.walls[nextx][nexty]
             if not hitsWall:
                 nextCoords = (nextx, nexty)
-                nextCorner = state[1][:]
-                if nextCoords in self.corners and nextCoords not in state[1]:
-                  nextCorner += (nextCoords,)
-                nextState = (nextCoords, nextCorner)
+                unvisitedCorners = state.corners
+                if nextCoords in unvisitedCorners:
+                  unvisitedCorners -= {nextCoords}
+                nextState = (nextCoords, unvisitedCorners)
                 successors.append((nextState, action, 1))
         self._expanded += 1 # DO NOT CHANGE
         return successors
