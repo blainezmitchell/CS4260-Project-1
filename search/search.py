@@ -133,6 +133,7 @@ def genericSearch(problem, fringe):
         else:
             successors = problem.getSuccessors(currentState[0])
             for successor in successors:
+                """
                 notInPath = True
                 for state in current:
                     if state[0] == successor[0]:
@@ -148,7 +149,7 @@ def genericSearch(problem, fringe):
                     next = current[:]
                     next.append(successor)
                     fringe.push(next)
-                """
+                
                     
     return None
 

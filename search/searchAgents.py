@@ -266,12 +266,12 @@ def euclideanHeuristic(position, problem, info={}):
 #####################################################
 # This portion is incomplete.  Time to write code!  #
 #####################################################
-
+"""
 class CornersProblemState:
     def __init__(self, position, corners):
         self.position = position
         self.corners = corners
-
+"""
 class CornersProblem(search.SearchProblem):
     """
     This search problem finds paths through all four corners of a layout.
@@ -301,16 +301,17 @@ class CornersProblem(search.SearchProblem):
         space)
         """
         "*** YOUR CODE HERE ***"
-        return CornersProblemState(self.startingPosition, self.corners)
+        #return CornersProblemState(self.startingPosition, self.corners)
+        return (self.startingPosition, ())
 
-    def isGoalState(self, state: CornersProblemState):
+    def isGoalState(self, state): # : CornersProblemState):
         """
         Returns whether this search state is a goal state of the problem.
         """
         "*** YOUR CODE HERE ***"
-        return len(state.corners) == 0
+        return len(state[1]) == 4
 
-    def getSuccessors(self, state: CornersProblemState):
+    def getSuccessors(self, state): # : CornersProblemState):
         """
         Returns successor states, the actions they require, and a cost of 1.
 
@@ -331,20 +332,21 @@ class CornersProblem(search.SearchProblem):
             #   hitsWall = self.walls[nextx][nexty]
 
             "*** YOUR CODE HERE ***"
-            x,y = state.position
+            x,y = state[0]
             dx, dy = Actions.directionToVector(action)
             nextx, nexty = int(x + dx), int(y + dy)
             hitsWall = self.walls[nextx][nexty]
             if not hitsWall:
                 nextCoords = (nextx, nexty)
-                unvisitedCorners = state.corners
-                if nextCoords in unvisitedCorners:
-                  unvisitedCorners -= {nextCoords}
-                nextState = (nextCoords, unvisitedCorners)
+                nextOptions = state[1][:]
+                if nextCoords in self.corners and nextCoords not in state[1]:
+                  nextOptions += (nextCoords,)
+                nextState = (nextCoords, nextOptions)
+                cost = 1
                 successors.append((nextState, action, 1))
         self._expanded += 1 # DO NOT CHANGE
         return successors
-
+        
     def getCostOfActions(self, actions):
         """
         Returns the cost of a particular sequence of actions.  If those actions
@@ -376,7 +378,57 @@ def cornersHeuristic(state, problem):
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
 
     "*** YOUR CODE HERE ***"
-    return 0 # Default to trivial solution
+    top = walls.height-2
+    right = walls.width-2
+        
+    if len(state[1]) == 4:
+      return 0
+
+    currentPos = state[0]
+    distance = 999999
+    unvisited = []
+            
+        
+    opposite = {
+            (1, 1): (right, top),
+            (1, top): (right, 1),
+            (right, 1): (1, top),
+            (right, top): (1, 1),
+        }
+
+    #add univisted corners
+    for corner in corners:
+      if corner not in state[1]:
+        unvisited.append(corner)
+    
+    numUnivisited = len(unvisited)
+    if numUnivisited == 0:
+        return 0
+    elif numUnivisited == 1:
+        return abs(currentPos[0] - unvisited[0][0]) + abs(currentPos[1] - unvisited[0][1])
+    elif numUnivisited == 2:
+        dist1 = abs(currentPos[0] - unvisited[0][0]) + abs(currentPos[1] - unvisited[0][1])
+        dist2 = abs(currentPos[0] - unvisited[1][0]) + abs(currentPos[1] - unvisited[1][1])
+        distLast = abs(unvisited[0][0] - unvisited[1][0]) + abs(unvisited[0][1] - unvisited[1][1])
+        return min(dist1,dist2) + distLast
+    elif numUnivisited == 3:
+        visitedCorner = next(corner for corner in corners if corner not in unvisited)
+        oppositeCorner = opposite[visitedCorner]
+        minCost = 9999;
+        for corner in unvisited:
+            if corner != oppositeCorner:
+                val = abs(currentPos[0] - corner[0]) + abs(currentPos[1] - corner[1])
+                if val < minCost:
+                    minCost = val;
+        return minCost + (top + right - 2) #add cost of three corners
+    else:
+        minCost = 9999
+        for corner in corners:
+            val = abs(currentPos[0] - corner[0]) + abs(currentPos[1] - corner[1])
+            if val < minCost:
+                minCost = val;
+        
+        return minCost + (2 * (min(top, right) - 1) + max(top, right) - 1) #cost of 4 corners
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
@@ -469,8 +521,25 @@ def foodHeuristic(state, problem):
     problem.heuristicInfo['wallCount']
     """
     position, foodGrid = state
-    "*** YOUR CODE HERE ***"
-    return 0
+    foodList = foodGrid.asList()
+    total = 0
+    if len(foodList) == 0:
+        return 0
+    closest = 9999
+    nextFood = None
+    total = 0
+    for food in foodList:
+        dist = abs(position[0] - food[0]) + abs(position[1] - food[1])
+        if dist < closest:
+            closest = dist
+            nextFood = food
+    foodList.remove(nextFood)
+    if len(foodList) == 0:
+        return closest
+    for food in foodList:
+        total += abs(nextFood[0] - food[0]) + abs(nextFood[1] - food[1])
+    total/=len(foodList)
+    return closest + total
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
@@ -501,7 +570,7 @@ class ClosestDotSearchAgent(SearchAgent):
         problem = AnyFoodSearchProblem(gameState)
 
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return search.ucs(problem)
 
 class AnyFoodSearchProblem(PositionSearchProblem):
     """
@@ -537,7 +606,7 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         x,y = state
 
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return self.food[x][y]
 
 def mazeDistance(point1, point2, gameState):
     """
